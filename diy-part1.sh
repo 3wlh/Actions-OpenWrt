@@ -19,7 +19,7 @@ echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.defau
 
 # git clone https://github.com/jerrykuku/luci-theme-argon package/luci-theme-argon 
 (git clone https://github.com/3wlh/Packages package/3wlh-package && {
-    [ -d package/3wlh/luci-theme-argon ] && echo "CONFIG_PACKAGE_luci-theme-argon=y" >> .config
-    [ -d package/3wlh/luci-app-argon-config ] && echo "CONFIG_PACKAGE_luci-app-argon-config=y" >> .config
-    [ -d package/3wlh/luci-app-cifs-mount ] && echo "CONFIG_PACKAGE_luci-app-cifs-mount=y" >> .config
+    [ -d package/3wlh-package/luci-theme-argon ] && echo "CONFIG_PACKAGE_luci-theme-argon=y" >> .config
+    [ -d package/3wlh-package/luci-app-argon-config ] && echo "CONFIG_PACKAGE_luci-app-argon-config=y" >> .config
+    [ -d package/3wlh-package/luci-app-cifs-mount ] && echo "CONFIG_PACKAGE_luci-app-cifs-mount=y" >> .config
 })
