@@ -1,9 +1,10 @@
 #============================================================================================
 # https://github.com/ophub/amlogic-s9xxx-openwrt
+# https://github.com/P3TERX/Actions-OpenWrt
 # Description: Build OpenWrt
 #============================================================================================
 
-name: Build OpenWrt
+name: OpenWrt Builder
 
 on:
   repository_dispatch:
@@ -43,6 +44,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    if: ${{ github.event.repository.owner.id }} == ${{ github.event.sender.id }}
 
     steps:
     - name: Checkout
@@ -121,7 +123,7 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-    - name: Compile the firmware
+    - name: Compile the OpenWrt
       id: compile
       run: |
         cd openwrt
