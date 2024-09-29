@@ -99,6 +99,8 @@ jobs:
         sudo mkdir Configs
         sudo chown $USER:$GROUPS Configs
         [ -e .config ] && mv .config Configs/.config
+        echo "SOURCE_NAME=${TAGS_NAME}" >> $GITHUB_ENV
+        echo "FILES_DIR=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Check space usage
@@ -109,5 +111,5 @@ jobs:
       uses: actions/upload-artifact@main
       if: env.UPLOAD_CONFIG == 'true' && !cancelled()
       with:
-        name: ${{ env.TAGS_NAME }}_Config-${{ env.FILE_DATE }}
-        path: ${{ env.GITHUB_WORKSPACE }}/openwrt/Configs
+        name: ${{ env.SOURCE_NAME }}_Config-${{ env.FILE_DATE }}
+        path: ${{ env.FILES_DIR }}/openwrt/Configs
