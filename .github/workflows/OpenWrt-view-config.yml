@@ -23,6 +23,7 @@ on:
 
 env:
   TZ: Asia/Shanghai
+  SSH_ACTIONS: true
   UPLOAD_CONFIG: true
 
   
@@ -94,7 +95,10 @@ jobs:
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
         
         
-
+    - name: SSH connection to Actions
+      uses: 3wlh/ssh2actions@v1.0.0
+      if: env.SSH_ACTIONS == 'true' || contains(github.event.action, 'ssh')
+      
     - name: Organize Files
       id: files
       run: |
