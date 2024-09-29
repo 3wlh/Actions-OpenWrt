@@ -31,14 +31,10 @@ on:
           - x86-64
 
 env:
-  FEEDS_CONF: Configs/feeds.conf.default
-  CONFIG_FILE: Configs/${{ inputs.openwrt_board }}/config
-  DIY_P1_SH: Configs/${{ inputs.openwrt_board }}/diy-part1.sh
-  DIY_P2_SH: Configs/${{ inputs.openwrt_board }}/diy-part2.sh
   TZ: Asia/Shanghai
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  UPLOAD_RELEASE: true
+  UPLOAD_RELEASE: false
   
   
 jobs:
@@ -93,33 +89,17 @@ jobs:
         echo "TAGS_NAME=${TAGS_NAME}" >> ${GITHUB_OUTPUT}
         echo "status=success" >> ${GITHUB_OUTPUT}
 
-    - name: Load custom feeds
-      run: |
-        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-        chmod +x $DIY_P1_SH
-        cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P1_SH
-
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
 
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
-    - name: Load custom configuration
-      run: |
-        [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        chmod +x $DIY_P2_SH
-        cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P2_SH
-
     - name: Download package
       id: package
       run: |
         cd openwrt
         make defconfig
-        make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
@@ -149,6 +129,7 @@ jobs:
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
         cd openwrt/bin/targets/*/*
+        [ -e $GITHUB_WORKSPACE/openwrt/.config ] && mv $GITHUB_WORKSPACE/openwrt/.config .
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
