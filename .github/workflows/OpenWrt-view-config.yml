@@ -98,10 +98,7 @@ jobs:
         cd openwrt
         sudo mkdir Configs
         sudo chown $USER:$GROUPS Configs
-        [ -e .config ] && mv .config Configs/.config
-        ls
-        echo "Configs"
-        ls Configs
+        cat .config | xargs -i echo {} > Configs/config
         echo "SOURCE_NAME=${TAGS_NAME}" >> $GITHUB_ENV
         echo "FILES_DIR=${GITHUB_WORKSPACE}/openwrt/Configs" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
@@ -115,4 +112,4 @@ jobs:
       if: env.UPLOAD_CONFIG == 'true' && !cancelled()
       with:
         name: ${{ env.SOURCE_NAME }}_Config-${{ env.FILE_DATE }}
-        path: openwrt/Configs/
+        path: openwrt/Configs
