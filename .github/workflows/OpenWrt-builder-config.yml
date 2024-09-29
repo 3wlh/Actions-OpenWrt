@@ -88,6 +88,7 @@ jobs:
       run: |
         cd openwrt
         make defconfig
+        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
     - name: View the Config
       id: config
@@ -102,8 +103,7 @@ jobs:
 
     - name: Upload Config directory
       uses: actions/upload-artifact@main
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_CONFIG == 'true'
+      if: env.UPLOAD_CONFIG == 'true' && !cancelled()
       with:
-        name: ${{ inputs.source_branch }}-Config
-        path: $GITHUB_WORKSPACE/openwrt/.config
-
+        name: ${TAGS_NAME}_Config-${{ env.FILE_DATE }}
+        path: openwrt/.config
