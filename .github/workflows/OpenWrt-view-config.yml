@@ -86,6 +86,12 @@ jobs:
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
+    - name: SSH connection to Actions
+      uses: rdp-studio/ssh2actions@main
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
     - name: Download Config
       id: config
       run: |
@@ -93,11 +99,6 @@ jobs:
         make defconfig
         echo -e "$(cat .config)"
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-        
-        
-    - name: SSH connection to Actions
-      uses: P3TERX/ssh2actions@v1.0.0
-      if: env.SSH_ACTIONS == 'true' || contains(github.event.action, 'ssh')
       
     - name: Organize Files
       id: files
