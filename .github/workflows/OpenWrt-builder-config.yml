@@ -118,7 +118,9 @@ jobs:
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        cd openwrt/bin/targets/*/*
+        sudo mkdir -p openwrt/bin/config
+        sudo chown $USER:$GROUPS openwrt/bin/config
+        cd openwrt/bin/config
         [ -e $GITHUB_WORKSPACE/openwrt/.config ] && mv $GITHUB_WORKSPACE/openwrt/.config .
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
