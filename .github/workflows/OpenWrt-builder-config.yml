@@ -96,9 +96,10 @@ jobs:
       id: files
       run: |
         cd openwrt
-        sudo mkdir -p Configs
+        sudo mkdir Configs
         sudo chown $USER:$GROUPS Configs
         [ -e .config ] && mv .config Configs/.config
+        ls
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Check space usage
