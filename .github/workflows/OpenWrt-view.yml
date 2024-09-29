@@ -22,6 +22,7 @@ on:
           - immortalwrt-master
 
 env:
+  CONFIG_FILE: Configs/nanopi-r6s/config
   TZ: Asia/Shanghai
   UPLOAD_CONFIG: true
 
@@ -39,10 +40,6 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-        sudo docker image prune --all --force
-        
-        sudo rm -rf ~/{.cargo,.dotnet,.rustup}
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
@@ -69,7 +66,8 @@ jobs:
               exit 1
           fi
         # Clone source code
-        
+        sudo mkdir openwrt
+        sudo chown $USER:$GROUPS openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
         echo "REPO_URL=${REPO_URL}" >> ${GITHUB_OUTPUT}
         echo "TAGS_NAME=${TAGS_NAME}" >> ${GITHUB_OUTPUT}
@@ -80,8 +78,9 @@ jobs:
       id: config
       run: |
         cd openwrt
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         echo -e "$(cat .config)"
-        echo "FILE_NAME=$(${TAGS_NAME})_" >> $GITHUB_ENV
+        echo "FILE_NAME=$(TAGS_NAME)_" >> $GITHUB_ENV
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
         
         
