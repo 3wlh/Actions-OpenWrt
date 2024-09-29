@@ -21,11 +21,10 @@ on:
           - lede-master
           - immortalwrt-master
           
-      SSH_Actions:
-        description: "Select the SSH Actions"
+      ssh:
+        description: "SSH connection to Actions"
         required: false
         default: true
-        type: boolean
      
 
 env:
@@ -94,7 +93,7 @@ jobs:
 
     - name: SSH connection to Actions
       uses: rdp-studio/ssh2actions@main
-      if: ${{ inputs.SSH_Actions }} == true || contains(github.event.action, 'ssh')
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
