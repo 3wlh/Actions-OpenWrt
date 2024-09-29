@@ -124,7 +124,7 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-    - name: Compile the OpenWrt
+    - name: Compile the Firmware
       id: compile
       run: |
         cd openwrt
