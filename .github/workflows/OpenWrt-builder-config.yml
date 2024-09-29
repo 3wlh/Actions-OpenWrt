@@ -19,16 +19,6 @@ on:
           - openwrt-main
           - lede-master
           - immortalwrt-master
-      openwrt_board:
-        description: "Select device board"
-        required: false
-        default: "all"
-        type: choice
-        options:
-          - all
-          - nanopi-r6s
-          - orangepi-5-plus
-          - x86-64
 
 env:
   TZ: Asia/Shanghai
