@@ -107,7 +107,7 @@ jobs:
 
     - name: Upload Config directory
       uses: actions/upload-artifact@main
-      if: steps.files.outputs.status == 'success' && env.UPLOAD_CONFIG == 'true'
+      if: env.UPLOAD_CONFIG == 'true' && !cancelled()
       with:
         name: ${TAGS_NAME}_Config-${{ env.FILE_DATE }}
-        path: openwrt/Configs
+        path: openwrt/Configs/*
