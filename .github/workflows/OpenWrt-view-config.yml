@@ -90,7 +90,10 @@ jobs:
         cd openwrt
         make defconfig
         echo -e "$(cat .config)"
+        echo "FILE_NAME=$(${TAGS_NAME})_" >> $GITHUB_ENV
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+        
+        
 
     - name: Organize Files
       id: files
@@ -99,8 +102,6 @@ jobs:
         sudo mkdir Configs
         sudo chown $USER:$GROUPS Configs
         cat .config | xargs -i echo {} > Configs/config
-        echo "SOURCE_NAME=${TAGS_NAME}" >> $GITHUB_ENV
-        echo "FILES_DIR=${GITHUB_WORKSPACE}/openwrt/Configs" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Check space usage
@@ -111,5 +112,5 @@ jobs:
       uses: actions/upload-artifact@main
       if: env.UPLOAD_CONFIG == 'true' && !cancelled()
       with:
-        name: ${{ env.SOURCE_NAME }}_Config-${{ env.FILE_DATE }}
+        name: ${{ env.FILE_NAME }}Config${{ env.FILE_DATE }}
         path: openwrt/Configs
