@@ -22,7 +22,7 @@ on:
           - immortalwrt-master
           
       SSH_Actions:
-        description: "Select the source branch"
+        description: "Select the SSH Actions"
         required: false
         default: true
         type: boolean
