@@ -84,18 +84,18 @@ jobs:
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
-    - name: Download package
-      id: package
-      run: |
-        cd openwrt
-        make defconfig
-        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-
-    - name: View the Config
+    - name: Download Config
       id: config
       run: |
         cd openwrt
+        make defconfig
         echo -e "$(cat .config)"
+        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+    - name: Organize Files
+      id: files
+      run: |
+        cd openwrt
         sudo mkdir -p Configs
         sudo chown $USER:$GROUPS Configs
         [ -e .config ] && mv .config Configs/.config
@@ -110,4 +110,4 @@ jobs:
       if: env.UPLOAD_CONFIG == 'true' && !cancelled()
       with:
         name: ${TAGS_NAME}_Config-${{ env.FILE_DATE }}
-        files: openwrt/.config
+        path: openwrt/Configs
