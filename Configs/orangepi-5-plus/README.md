@@ -1,0 +1,23 @@
+# Actions-Xunlong_orangepi-5-plus
+#### CONFIG_TARGET
+```
+CONFIG_TARGET_rockchip=y
+CONFIG_TARGET_rockchip_armv8=y
+CONFIG_TARGET_rockchip_armv8_DEVICE_xunlong_orangepi-5-plus=y
+CONFIG_TARGET_KERNEL_PARTSIZE=64
+CONFIG_TARGET_ROOTFS_PARTSIZE=512
+CONFIG_TARGET_IMAGES_GZIP=y
+CONFIG_HAS_SUBTARGETS=y
+CONFIG_HAS_DEVICES=y
+CONFIG_TARGET_BOARD=rockchip
+CONFIG_TARGET_SUBTARGET=armv8
+CONFIG_TARGET_PROFILE=DEVICE_xunlong_orangepi-5-plus
+CONFIG_TARGET_ARCH_PACKAGES=aarch64_generic
+
+```
+
+#### Wifi
+```
+CONFIG_PACKAGE_iwlwifi-firmware-ax200=y
+CONFIG_PACKAGE_iwlwifi-firmware-ax210=y
+```
