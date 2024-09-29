@@ -110,4 +110,4 @@ jobs:
       if: env.UPLOAD_CONFIG == 'true' && !cancelled()
       with:
         name: ${TAGS_NAME}_Config-${{ env.FILE_DATE }}
-        path: openwrt/Configs/*
+        path: ${GITHUB_WORKSPACE}/openwrt/Configs
