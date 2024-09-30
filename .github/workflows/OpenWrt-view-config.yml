@@ -56,6 +56,7 @@ jobs:
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
+        echo ${{ inputs.ssh }}
 
     - name: Clone source code [ ${{ inputs.source_branch }} ]
       working-directory: /workdir
@@ -93,8 +94,8 @@ jobs:
       run: cd openwrt && ./scripts/feeds install -a
 
     - name: SSH connection to Actions
+      if: (github.event.inputs.ssh == true) || contains(github.event.action, 'ssh')
       uses: rdp-studio/ssh2actions@main
-      if: (github.event.inputs.ssh == true && github.event.inputs.ssh  != false) || contains(github.event.action, 'ssh')
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -111,9 +112,11 @@ jobs:
       id: files
       run: |
         cd openwrt
-        sudo mkdir Configs
-        sudo chown $USER:$GROUPS Configs
-        cat .config | xargs -i echo {} > Configs/config
+        # sudo mkdir Configs
+        # sudo chown $USER:$GROUPS Configs
+        # cat .config | xargs -i echo {} > Configs/config
+        [[ -d "Output" ]] || mkdir Output
+        cp -f .config output/config
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Check space usage
