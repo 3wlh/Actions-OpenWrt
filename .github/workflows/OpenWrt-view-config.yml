@@ -59,6 +59,7 @@ jobs:
         sudo mkdir -p /builder
         sudo chown $USER:$GROUPS /builder
         echo ${{ inputs.ssh }}
+        echo ${{ github.event.inputs.ssh }}
 
     - name: Clone source code [ ${{ inputs.source_branch }} ]
       working-directory: /builder
@@ -96,7 +97,7 @@ jobs:
       run: cd openwrt && ./scripts/feeds install -a
 
     - name: SSH connection to Actions
-      if: (github.event.inputs.ssh == true) || contains(github.event.action, 'ssh')
+      if: (inputs.ssh == true) || contains(github.event.action, 'ssh')
       uses: rdp-studio/ssh2actions@main
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
