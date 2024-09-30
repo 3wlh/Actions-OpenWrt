@@ -65,8 +65,8 @@ jobs:
         sudo -E apt-get -qq clean
         sudo rm -rf ~/{.cargo,.dotnet,.rustup}
         sudo timedatectl set-timezone "${TZ}"
-        sudo mkdir -p /workdir
-        sudo chown $USER:$GROUPS /workdir
+        # sudo mkdir -p /workdir
+        # sudo chown $USER:$GROUPS /workdir
         
     - name: Create simulated physical disk
         run: |
@@ -87,7 +87,8 @@ jobs:
           df -Th $PWD   
 
     - name: Clone source code [ ${{ inputs.source_branch }} ]
-      working-directory: /workdir
+      id: codes
+      working-directory: /builder
       run: |
         df -hT $PWD
         # Set up compilation source code
