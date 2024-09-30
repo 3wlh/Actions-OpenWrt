@@ -58,8 +58,6 @@ jobs:
         sudo timedatectl set-timezone "${TZ}"
         sudo mkdir -p /builder
         sudo chown $USER:$GROUPS /builder
-        echo ${{ inputs.ssh }}
-        echo ${{ github.event.inputs.ssh }}
 
     - name: Clone source code [ ${{ inputs.source_branch }} ]
       working-directory: /builder
@@ -115,9 +113,6 @@ jobs:
       id: files
       run: |
         cd openwrt
-        # sudo mkdir Configs
-        # sudo chown $USER:$GROUPS Configs
-        # cat .config | xargs -i echo {} > Configs/config
         [[ -d "Output" ]] || mkdir Output
         cp -f .config Output/config
         echo "status=success" >> $GITHUB_OUTPUT
