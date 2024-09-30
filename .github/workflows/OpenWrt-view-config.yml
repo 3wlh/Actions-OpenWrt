@@ -5,7 +5,7 @@
 # Description: Build OpenWrt
 #============================================================================================
 
-name: OpenWrt View Config
+name: OpenWrt Retrieve Config
 
 on:
   repository_dispatch:
@@ -96,25 +96,30 @@ jobs:
 
     - name: SSH connection to Actions
       if: (inputs.ssh == true) || contains(github.event.action, 'ssh')
-      uses: rdp-studio/ssh2actions@main
-      env:
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      uses: mxschmitt/action-tmate@v3
 
-    - name: Download Config
-      id: config
+    - name: Write the Config
+      id: write
+      if: inputs.ssh != true
       run: |
         cd openwrt/
         make defconfig
+        echo "status=success" >> $GITHUB_OUTPUT
+        
+    - name: View the Config
+      id: view
+      run: |
+        cd openwrt/
         echo -e "$(cat .config)"
-        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-      
+        echo "status=success" >> $GITHUB_OUTPUT
+    
     - name: Organize Files
       id: files
       run: |
         cd openwrt/
         [[ -d "Output" ]] || mkdir Output
         cp -f .config Output/config
+        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Check space usage
