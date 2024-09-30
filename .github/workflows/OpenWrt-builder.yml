@@ -69,7 +69,8 @@ jobs:
         # sudo chown $USER:$GROUPS /workdir
 
     - name: Create simulated physical disk
-        run: |
+      id: disk
+      run: |
           mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
           root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
           sudo truncate -s "${mnt_size}"G /mnt/mnt.img
