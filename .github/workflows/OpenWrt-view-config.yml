@@ -71,7 +71,7 @@ jobs:
         elif [[ "${{ inputs.source_branch }}" == *"lede"* ]]; then
             REPO_URL="https://github.com/coolsnowwolf/lede"
             REPO_BRANCH="master"
-            TAGS_NAME="LEDE"
+            TAGS_NAME="Lede"
         elif [[ "${{ inputs.source_branch }}" == *"immortalwrt"* ]]; then
             REPO_URL="https://github.com/immortalwrt/immortalwrt"
             REPO_BRANCH="master"
@@ -82,17 +82,17 @@ jobs:
           fi
         # Clone source code
         git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt
-        ln -sf /builder/openwrt $GITHUB_WORKSPACE/openwrt
+        ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
         echo "FILE_NAME=${TAGS_NAME}_" >> $GITHUB_ENV
         echo "REPO_URL=${REPO_URL}" >> ${GITHUB_OUTPUT}
         echo "TAGS_NAME=${TAGS_NAME}" >> ${GITHUB_OUTPUT}
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Update feeds
-      run: cd openwrt && ./scripts/feeds update -a
+      run: cd openwrt/ && ./scripts/feeds update -a
 
     - name: Install feeds
-      run: cd openwrt && ./scripts/feeds install -a
+      run: cd openwrt/ && ./scripts/feeds install -a
 
     - name: SSH connection to Actions
       if: (inputs.ssh == true) || contains(github.event.action, 'ssh')
@@ -104,7 +104,7 @@ jobs:
     - name: Download Config
       id: config
       run: |
-        cd openwrt
+        cd openwrt/
         make defconfig
         echo -e "$(cat .config)"
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -112,7 +112,7 @@ jobs:
     - name: Organize Files
       id: files
       run: |
-        cd openwrt
+        cd openwrt/
         [[ -d "Output" ]] || mkdir Output
         cp -f .config Output/config
         echo "status=success" >> $GITHUB_OUTPUT
