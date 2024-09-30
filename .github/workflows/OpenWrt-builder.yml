@@ -55,18 +55,21 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        docker rmi $(docker images -q) 2>/dev/null
+        [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL 2>/dev/null
-        sudo docker image prune --all --force
+        # sudo docker image prune --all --force
         sudo swapoff -a
+        sudo rm -f /swapfile /mnt/swapfile
         sudo -E apt-get -qq -y update
         sudo -E apt-get -qq -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
         sudo -E apt-get -qq -y install $(cat make-openwrt-env)
-        sudo -E apt-get -qq autoremove --purge
+        sudo -E systemctl daemon-reload
+        sudo -E apt-get -qq -y autoremove --purge
         sudo -E apt-get -qq clean
+        sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
         sudo rm -rf ~/{.cargo,.dotnet,.rustup}
         sudo timedatectl set-timezone "${TZ}"
-        # sudo mkdir -p /workdir
-        # sudo chown $USER:$GROUPS /workdir
 
     - name: Create simulated physical disk
       id: disk
@@ -85,7 +88,7 @@ jobs:
           sudo mkdir -p /builder
           sudo mount /dev/github/runner /builder
           sudo chown -R runner.runner /builder
-          df -Th $PWD
+          df -Th
 
     - name: Clone source code [ ${{ inputs.source_branch }} ]
       id: codes
@@ -96,15 +99,15 @@ jobs:
         if [[ "${{ inputs.source_branch }}" == *"openwrt"* ]]; then
             REPO_URL="https://github.com/openwrt/openwrt"
             REPO_BRANCH="main"
-            TAGS_NAME="official"
+            TAGS_NAME="OpenWrt"
         elif [[ "${{ inputs.source_branch }}" == *"lede"* ]]; then
             REPO_URL="https://github.com/coolsnowwolf/lede"
             REPO_BRANCH="master"
-            TAGS_NAME="lede"
+            TAGS_NAME="Lede"
         elif [[ "${{ inputs.source_branch }}" == *"immortalwrt"* ]]; then
             REPO_URL="https://github.com/immortalwrt/immortalwrt"
             REPO_BRANCH="master"
-            TAGS_NAME="immortalwrt"
+            TAGS_NAME="Immortalwrt"
         else
             echo "Unknown source code repository."
               exit 1
@@ -119,29 +122,28 @@ jobs:
     - name: Load custom feeds
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-        chmod +x $DIY_P1_SH
-        cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P1_SH
+        chmod +x ${DIY_P1_SH}
+        cd openwrt/
+        ${GITHUB_WORKSPACE}/${DIY_P1_SH}
 
     - name: Update feeds
-      run: cd openwrt && ./scripts/feeds update -a
+      run: cd openwrt/ && ./scripts/feeds update -a
 
     - name: Install feeds
-      run: cd openwrt && ./scripts/feeds install -a
+      run: cd openwrt/ && ./scripts/feeds install -a
 
     - name: Load custom configuration
       run: |
-        [ -e files ] && mv files openwrt/files
-        # [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        [ -e $CONFIG_FILE ] && cat $CONFIG_FILE | sed -e '/#/d' -e '/=$/d' | xargs -i echo {} > openwrt/.config
-        chmod +x $DIY_P2_SH
-        cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P2_SH
+        [[ -d "files" ]] && mv -f files openwrt/files
+        [[ -e "${CONFIG_FILE}" ]] && cp -f ${CONFIG_FILE} openwrt/.config
+        chmod +x ${DIY_P2_SH}
+        cd openwrt/
+        ${GITHUB_WORKSPACE}/${DIY_P2_SH}
 
     - name: Download package
       id: package
       run: |
-        cd openwrt
+        cd openwrt/
         make defconfig
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
@@ -150,9 +152,9 @@ jobs:
     - name: Compile the Firmware
       id: compile
       run: |
-        cd openwrt
+        cd openwrt/
         echo -e "$(nproc) thread compile"
-        make -j$(($(nproc) + 1)) || make -j1 || make -j1 V=s
+        make -j$(($(nproc) + 1)) V=s || make -j1 || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
