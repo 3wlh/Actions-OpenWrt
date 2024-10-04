@@ -118,7 +118,10 @@ jobs:
       run: |
         cd openwrt/
         [[ -d "Output" ]] || mkdir Output
-        cp -f .config Output/config
+        if [[ -e ".config" ]]; then
+            cat .config > Output/config
+            # cp -f .config Output/config
+        fi
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
 
