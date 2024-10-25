@@ -10,3 +10,16 @@ CONFIG_TARGET_BOARD=rockchip
 CONFIG_TARGET_SUBTARGET=armv8
 CONFIG_TARGET_PROFILE=DEVICE_friendlyarm_nanopi-r6s
 CONFIG_TARGET_ARCH_PACKAGES=aarch64_generic
+
+# CONFIG_PACKAGE_dnsmasq is not set
+CONFIG_PACKAGE_dnsmasq-full=y
+CONFIG_PACKAGE_uhttpd=y
+CONFIG_PACKAGE_uhttpd-mod-ubus=y
+CONFIG_PACKAGE_libusb-1.0=y
+
+CONFIG_LUCI_LANG_zh_Hans=y
+CONFIG_PACKAGE_kmod-ipt-nat6=y
+CONFIG_PACKAGE_kmod-nf-nat6=y
+CONFIG_PACKAGE_kmod-usb-serial-option=y
+CONFIG_PACKAGE_usbutils=y
+CONFIG_PACKAGE_usb-modeswitch=y
