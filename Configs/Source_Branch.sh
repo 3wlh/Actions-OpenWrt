@@ -7,8 +7,10 @@ Source_branch="${1}"
 if [ -n "$(echo ${Source_branch} | grep "openwrt")" ]; then
 Default_Pakage="
 uhttpd 
-luci_lang_zh_hans 
+luci 
+luci-base 
 luci-i18n-base-zh-cn 
+lang_zh_hans 
 luci-i18n-firewall-zh-cn 
 luci-i18n-opkg-zh-cn  
 luci-lib-ipkg 
