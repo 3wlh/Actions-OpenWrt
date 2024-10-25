@@ -3,12 +3,13 @@
 # luci-base luci-app-firewall luci-app-opkg luci-app-upnp luci-compat luci-lib-ipkg luci-lib-fs coremark wget-ssl curl autocore htop nano zram-swap kmod-lib-zstd kmod-tcp-bbr bash openssh-sftp-server block-mount resolveip ds-lite swconfig luci-app-fan
 Pakages="DEFAULT_PACKAGES:=*"
 Source_branch="${1}"
+# luci luci-base 
 if [ -n "$(echo ${Source_branch} | grep "openwrt")" ]; then
 Default_Pakage="
-luci 
-luci-base
-luci-i18n-base-zh-cn
-luci-i18n-firewall-zh-cn
+uhttpd 
+luci_lang_zh_hans 
+luci-i18n-base-zh-cn 
+luci-i18n-firewall-zh-cn 
 luci-i18n-opkg-zh-cn  
 luci-lib-ipkg 
 luci-lib-fs 
@@ -30,12 +31,14 @@ swconfig
 fi
 if [ -n "$(echo ${Source_branch} | grep "lede")" ]; then
 Default_Pakage="
+uhttpd 
 luci 
+luci_lang_zh_hans 
 luci-base 
 autocore-arm 
-luci-i18n-base-zh-cn
-luci-i18n-firewall-zh-cn
-luci-i18n-opkg-zh-cn  
+luci-i18n-base-zh-cn 
+luci-i18n-firewall-zh-cn 
+luci-i18n-opkg-zh-cn 
 luci-lib-ipkg 
 luci-lib-fs 
 coremark 
@@ -56,11 +59,13 @@ swconfig
 fi
 if [ -n "$(echo ${Source_branch} | grep "immortalwrt")" ]; then
 Default_Pakage="
+uhttpd 
 luci 
-luci-base
-luci-i18n-base-zh-cn
-luci-i18n-firewall-zh-cn
-luci-i18n-opkg-zh-cn  
+luci_lang_zh_hans 
+luci-base 
+luci-i18n-base-zh-cn 
+luci-i18n-firewall-zh-cn 
+luci-i18n-opkg-zh-cn 
 luci-lib-ipkg 
 luci-lib-fs 
 coremark 
