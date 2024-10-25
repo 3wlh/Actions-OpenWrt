@@ -32,6 +32,7 @@ on:
 
 env:
   FEEDS_CONF: Configs/feeds.conf.default
+  Source_Branch: Configs/Source_Branch.sh
   CONFIG_FILE: Configs/${{ inputs.openwrt_board }}/config
   DIY_P1_SH: Configs/${{ inputs.openwrt_board }}/diy-part1.sh
   DIY_P2_SH: Configs/${{ inputs.openwrt_board }}/diy-part2.sh
@@ -137,8 +138,10 @@ jobs:
         [[ -d "files" ]] && mv -f files openwrt/files
         [[ -e "${CONFIG_FILE}" ]] && cp -f ${CONFIG_FILE} openwrt/.config
         chmod +x ${DIY_P2_SH}
+        chmod +x ${Source_Branch}
         cd openwrt/
         ${GITHUB_WORKSPACE}/${DIY_P2_SH}
+        ${GITHUB_WORKSPACE}/${Source_Branch} ${{ inputs.source_branch }}
 
     - name: Download package
       id: package
