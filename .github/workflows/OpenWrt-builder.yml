@@ -36,6 +36,7 @@ env:
   CONFIG_FILE: Configs/${{ inputs.openwrt_board }}/config
   DIY_P1_SH: Configs/${{ inputs.openwrt_board }}/diy-part1.sh
   DIY_P2_SH: Configs/${{ inputs.openwrt_board }}/diy-part2.sh
+  Default_Pakage: Configs/Default/${{ inputs.source_branch }}.config
   TZ: Asia/Shanghai
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
