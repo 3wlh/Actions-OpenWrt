@@ -32,7 +32,7 @@ on:
 
 env:
   FEEDS_CONF: Configs/feeds.conf.default
-  Source_Branch: Configs/Source_Branch.sh
+  Source_Branch: Configs/Default/Source_Branch.sh
   CONFIG_FILE: Configs/${{ inputs.openwrt_board }}/config
   DIY_P1_SH: Configs/${{ inputs.openwrt_board }}/diy-part1.sh
   DIY_P2_SH: Configs/${{ inputs.openwrt_board }}/diy-part2.sh
