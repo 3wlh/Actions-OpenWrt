@@ -1,8 +1,8 @@
 #!/bin/bash
 #=================================================
 Pakages="DEFAULT_PACKAGES.router:=*"
-Default_Pakages="$(cat "${1}" 2>/dev/null)"
-sed -i '/'${Pakages}'/a\	uhttpd \\' include/target.mk
+Default_Pakages="$(cat "$1" 2>/dev/null)"
+# sed -i '/'${Pakages}'/a\	uhttpd \\' include/target.mk
 function Default() {
 for pakage in $(echo ${Default_Pakages} | sed 's/ / /')
 do

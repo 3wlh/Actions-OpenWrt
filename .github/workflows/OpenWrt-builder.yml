@@ -142,7 +142,7 @@ jobs:
         chmod +x ${Source_Branch}
         cd openwrt/
         ${GITHUB_WORKSPACE}/${DIY_P2_SH}
-        ${GITHUB_WORKSPACE}/${Source_Branch} ${{ inputs.source_branch }}
+        ${GITHUB_WORKSPACE}/${Source_Branch} ${GITHUB_WORKSPACE}/${Default_Pakage}
 
     - name: Download package
       id: package
