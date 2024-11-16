@@ -81,7 +81,6 @@ jobs:
           echo "CACHE_DIR_DL: $CACHE_DIR_DL"
           echo "CACHE_DIR_FEEDS: $CACHE_DIR_FEEDS"
           test -d "$CACHE_DIR_SDK" || mkdir -p "$CACHE_DIR_SDK"
-          openwrt_
           test -d "$CACHE_DIR_FEEDS" || mkdir -p "$CACHE_DIR_FEEDS"
           test -d "${{ env.APP_DIR }}" || mkdir -p "${{ env.APP_DIR }}"
           echo "CACHE_DIR_SDK=$CACHE_DIR_SDK" >> $GITHUB_ENV
