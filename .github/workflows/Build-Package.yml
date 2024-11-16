@@ -112,10 +112,12 @@ jobs:
           # find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++" -exec sudo ln -s {} "/bin/openwrt_g++" \;
           GPP="$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++")"
           sudo ln -s "${GPP}" "${GPP%/*}/openwrt-g++"
+          find "${{ env.SDK_HOME }}" -type l -name "openwrt-g++" -exec echo {} \;
           find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec echo {} \;
           # find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec sudo ln -s {} "/bin/openwrt_gcc" \;
           GCC="$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc")"
           sudo ln -s "${GCC}" "${GCC%/*}/openwrt-gcc"
+          find "${{ env.SDK_HOME }}" -type l -name "openwrt-gcc" -exec echo {} \;
           sudo sed -i '$a\PATH=$PATH:'"${GPP%/*}" "/etc/profile"
           source /etc/profile
           cd -
