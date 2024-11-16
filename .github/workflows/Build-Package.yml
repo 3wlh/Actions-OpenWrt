@@ -112,10 +112,6 @@ jobs:
           echo "CXX=$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++")" >> $GITHUB_ENV
           find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec echo {} \;
           echo "CC=$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc")" >> $GITHUB_ENV
-          sudo ln -s "${GCC}" "${GCC%/*}/openwrt-gcc"
-          find "${{ env.SDK_HOME }}" -type l -name "openwrt-gcc" -exec echo {} \;
-          sudo sed -i '$a\export PATH=$PATH:'"${GPP%/*}" "/etc/profile"
-          source /etc/profile
           cd -
 
       - name: Download and cpp
