@@ -141,14 +141,7 @@ jobs:
         run: |
           touch release.txt
           [ ${UPLOAD_GOFILE} = true && ${{ steps.gofile.outputs.url }} ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
-          File=$(find "${PACKAGE_DIR}" -name "${name}")
-          for dir in $(echo ${File} | sed 's| | |g')
-          do
-            # echo ${dir}
-            cp -f ${dir} "${{ env.APP_DIR }}/${{ matrix.arch }}_$(basename ${dir} | sed 's/_all//')"
-          done
-          find "${{ env.APP_DIR }}" -name "*" -exec ls -lh {} \;
-
+          
       - name: Upload to bin directory
         uses: actions/upload-artifact@main
         if: ${{env.UPLOAD_BIN_DIR}} == 'true'
