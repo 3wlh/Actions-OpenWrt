@@ -132,7 +132,7 @@ jobs:
       - name: Build Source
         run: |
           cd "${{ env.SDK_HOME }}"
-          CPP=$(find "${{ Source_DIR }}" -type f -name "*.cpp")
+          CPP=$(find "${{ env.Source_DIR }}" -type f -name "*.cpp")
           echo ${CPP}
           ${{ env.CXX }} ${CPP} -o ${{ env.APP_DIR }}/${{ env.PACKAGE_NAME }}-${{ matrix.arch }}
           cd -
