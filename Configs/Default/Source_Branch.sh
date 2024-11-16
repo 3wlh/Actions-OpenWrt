@@ -1,9 +1,8 @@
 #!/bin/bash
 #=================================================
-# luci-base luci-app-firewall luci-app-opkg luci-app-upnp luci-compat luci-lib-ipkg luci-lib-fs coremark wget-ssl curl autocore htop nano zram-swap kmod-lib-zstd kmod-tcp-bbr bash openssh-sftp-server block-mount resolveip ds-lite swconfig luci-app-fan
 Pakages="DEFAULT_PACKAGES.router:=*"
-Default_Pakages="$(cat "${1}" 2>/dev/null)"
-sed -i '/'${Pakages}'/a\	uhttpd \\' include/target.mk
+Default_Pakages="$(cat "$1" 2>/dev/null)"
+# sed -i '/'${Pakages}'/a\	uhttpd \\' include/target.mk
 function Default() {
 for pakage in $(echo ${Default_Pakages} | sed 's/ / /')
 do
