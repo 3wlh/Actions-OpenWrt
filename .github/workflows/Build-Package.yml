@@ -1,4 +1,4 @@
-name: Build and cpp
+name: Build and Source
 
 on:
   repository_dispatch:
@@ -10,16 +10,19 @@ on:
         default: false
         type: boolean
       
-      package_name:
-        description: "Select the cpp"
+      Source_name:
+        description: "Select the Source"
         required: false
         default: "all"
         type: choice
         options:
           - all
+          - Api
+          - wxpusher
 
 env:
-  PACKAGE_NAME: ${{ inputs.package_name }}
+  PACKAGE_NAME: ${{ inputs.Source_name }}
+  Source_DIR: OpenWrt/${{ inputs.Source_name }}/
   CACHE_DIR: ~/cache
   TZ: Asia/Shanghai
   UPLOAD_BIN_DIR: true
@@ -61,7 +64,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          #DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ccache gettext libncurses5-dev xsltproc
+          # DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ccache gettext libncurses5-dev xsltproc
 
       - name: Setup Cache
         uses: actions/cache@main
@@ -88,7 +91,7 @@ jobs:
           echo "CACHE_DIR_FEEDS=$CACHE_DIR_FEEDS" >> $GITHUB_ENV
           echo "SDK_HOME=$(mktemp -d)" >> $GITHUB_ENV
 
-      - name: Download and Unzip SDK
+      - name: Download and Unzip ToolChain
         run: |
           cd "$CACHE_DIR_SDK"
           if ! ( wget -q -O - "$SDK_URL_PATH/sha256sums" | grep -- "${{ env.SDK_NAME }}" > sha256sums.small 2>/dev/null ) ; then
@@ -114,7 +117,7 @@ jobs:
           echo "CC=$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc")" >> $GITHUB_ENV
           cd -
 
-      - name: Download and cpp
+      - name: Download and Source
         env:
           OPENWRT_GOLANG_COMMIT: ${{ secrets.OPENWRT_GOLANG_COMMIT }}
         run: |
@@ -125,24 +128,19 @@ jobs:
           # ${{ env.CXX }} -v
           # ${{ env.CC }} -v
           cd -
-
-      - name: SSH connection to Actions
-        if: (inputs.ssh == true) || contains(github.event.action, 'ssh')
-        uses: mxschmitt/action-tmate@v3
         
-      - name: Build Packages
+      - name: Build Source
         run: |
           cd "${{ env.SDK_HOME }}"
-          exit 1
+          CPP=$(find "${{ Source_DIR }}" -type f -name "*.cpp")
+          echo ${CPP}
+          ${{ env.CXX }} ${CPP} -o ${{ env.APP_DIR }}/${{ env.PACKAGE_NAME }}-${{ matrix.arch }}
           cd -
 
       - name: Copy Bin Files
         run: |
           touch release.txt
           [ ${UPLOAD_GOFILE} = true && ${{ steps.gofile.outputs.url }} ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
-          # name=*$(echo ${{ env.PACKAGE_NAME }} | cut -d "-" -f 3-)*.ipk
-          name="*$(echo ${{ env.PACKAGE_NAME }} | sed 's/luci-app-//')*.ipk"
-          PACKAGE_DIR="${{ env.SDK_HOME }}/bin/"
           File=$(find "${PACKAGE_DIR}" -name "${name}")
           for dir in $(echo ${File} | sed 's| | |g')
           do
@@ -155,8 +153,8 @@ jobs:
         uses: actions/upload-artifact@main
         if: ${{env.UPLOAD_BIN_DIR}} == 'true'
         with:
-          name: ${{ matrix.arch }}_package_${{ env.Time }}
-          path: ${{ env.SDK_HOME }}/bin 
+          name: ${{ env.PACKAGE_NAME }}_${{ env.Time }}
+          path: ${{ env.APP_DIR }} 
 
       - name: Upload to Release
         uses: softprops/action-gh-release@master
