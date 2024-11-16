@@ -119,8 +119,11 @@ jobs:
           OPENWRT_GOLANG_COMMIT: ${{ secrets.OPENWRT_GOLANG_COMMIT }}
         run: |
           cd "${{ env.SDK_HOME }}"
-          ${{ env.CXX }} -v
-          ${{ env.CC }} -v
+          git clone https://3wlh:${{ secrets.TOKEN_3WLH }}@github.com/3wlh/Source
+          test -d "Source/C++/OpenWrt" && mv Source/C++/OpenWrt ./
+          test -d "OpenWrt" && rm -rf Source
+          # ${{ env.CXX }} -v
+          # ${{ env.CC }} -v
           cd -
 
       - name: SSH connection to Actions
