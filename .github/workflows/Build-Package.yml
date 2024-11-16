@@ -109,13 +109,9 @@ jobs:
           tar -I zstd -xf "$CACHE_DIR_SDK/$SDK_FILE" -C "${{ env.SDK_HOME }}" --strip=1
           cd "${{ env.SDK_HOME }}"
           find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++" -exec echo {} \;
-          # find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++" -exec sudo ln -s {} "/bin/openwrt_g++" \;
-          GPP="$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++")"
-          sudo ln -s "${GPP}" "${GPP%/*}/openwrt-g++"
-          find "${{ env.SDK_HOME }}" -type l -name "openwrt-g++" -exec echo {} \;
+          echo "CXX=$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++")" >> $GITHUB_ENV
           find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec echo {} \;
-          # find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec sudo ln -s {} "/bin/openwrt_gcc" \;
-          GCC="$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc")"
+          echo "CC=$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc")" >> $GITHUB_ENV
           sudo ln -s "${GCC}" "${GCC%/*}/openwrt-gcc"
           find "${{ env.SDK_HOME }}" -type l -name "openwrt-gcc" -exec echo {} \;
           sudo sed -i '$a\export PATH=$PATH:'"${GPP%/*}" "/etc/profile"
@@ -126,11 +122,10 @@ jobs:
         env:
           OPENWRT_GOLANG_COMMIT: ${{ secrets.OPENWRT_GOLANG_COMMIT }}
         run: |
-          source /etc/profile
           cd "${{ env.SDK_HOME }}"
           cat "/etc/profile"
-          openwrt-g++ -v
-          openwrt-gcc -v
+          ${{ env.CXX }} -v
+          ${{ env.CC }} -v
           cd -
 
       - name: SSH connection to Actions
