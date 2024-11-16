@@ -111,11 +111,11 @@ jobs:
           find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++" -exec echo {} \;
           # find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++" -exec sudo ln -s {} "/bin/openwrt_g++" \;
           GPP="$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++")"
-          sudo ln -s "${GPP}" "${GPP%/*}/openwrt_g++"
+          sudo ln -s "${GPP}" "${GPP%/*}/openwrt-g++"
           find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec echo {} \;
           # find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec sudo ln -s {} "/bin/openwrt_gcc" \;
           GCC="$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc")"
-          sudo ln -s "${GCC}" "${GCC%/*}/openwrt_gcc"
+          sudo ln -s "${GCC}" "${GCC%/*}/openwrt-gcc"
           sed -i '$a\PATH=$PATH:'"${GPP%/*}" "/etc/profile"
           source /etc/profile
           cd -
@@ -125,8 +125,8 @@ jobs:
           OPENWRT_GOLANG_COMMIT: ${{ secrets.OPENWRT_GOLANG_COMMIT }}
         run: |
           cd "${{ env.SDK_HOME }}"
-          openwrt_g++ -v
-          openwrt_gcc -v
+          openwrt-g++ -v
+          openwrt-gcc -v
           cd -
 
       - name: SSH connection to Actions
