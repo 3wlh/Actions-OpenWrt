@@ -118,8 +118,8 @@ jobs:
           GCC="$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc")"
           sudo ln -s "${GCC}" "${GCC%/*}/openwrt-gcc"
           find "${{ env.SDK_HOME }}" -type l -name "openwrt-gcc" -exec echo {} \;
-          sudo sed -i '$a\PATH=$PATH:'"${GPP%/*}" "/etc/environment"
-          source /etc/environment
+          sudo sed -i '$a\export PATH=$PATH:'"${GPP%/*}" "/etc/profile"
+          source /etc/profile
           cd -
 
       - name: Download and cpp
@@ -127,7 +127,7 @@ jobs:
           OPENWRT_GOLANG_COMMIT: ${{ secrets.OPENWRT_GOLANG_COMMIT }}
         run: |
           cd "${{ env.SDK_HOME }}"
-          cat "/etc/environment"
+          cat "/etc/profile"
           openwrt-g++ -v
           openwrt-gcc -v
           cd -
