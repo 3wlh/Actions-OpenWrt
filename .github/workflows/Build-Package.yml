@@ -17,11 +17,6 @@ on:
         type: choice
         options:
           - all
-          - luci-app-cifs-mount
-          - luci-app-bypass
-          - luci-app-unishare
-          - luci-app-v2ray-server
-          - luci-app-sunpanel
 
 env:
   PACKAGE_NAME: ${{ inputs.package_name }}
