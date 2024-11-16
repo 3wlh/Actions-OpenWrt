@@ -1,0 +1,192 @@
+name: Build and cpp
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: "SSH connection to Actions"
+        required: false
+        default: false
+        type: boolean
+      
+      package_name:
+        description: "Select the cpp"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - all
+          - luci-app-cifs-mount
+          - luci-app-bypass
+          - luci-app-unishare
+          - luci-app-v2ray-server
+          - luci-app-sunpanel
+
+env:
+  PACKAGE_NAME: ${{ inputs.package_name }}
+  CACHE_DIR: ~/cache
+  TZ: Asia/Shanghai
+  UPLOAD_BIN_DIR: true
+
+jobs:
+  jod_time:
+    name: Acquisition Time
+    runs-on: ubuntu-latest
+    outputs:
+      time: ${{steps.output_time.outputs.time}}
+    steps: 
+      - name: output Time
+        id: output_time
+        run: |
+          sudo timedatectl set-timezone "${TZ}"
+          echo "time=$(date "+%Y.%m.%d_%H%M%S")" >> $GITHUB_OUTPUT
+
+  jod_release:
+    name: Build for ${{ matrix.arch }}
+    needs: jod_time
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: aarch64_generic
+            toolchain_url_path: http://downloads.openwrt.org/snapshots/targets/layerscape/armv8_64b
+            toolchain_name: -toolchain-layerscape-armv8_64b_
+
+    env:
+      SDK_URL_PATH: ${{ matrix.toolchain_url_path }}
+      SDK_NAME: ${{ matrix.toolchain_name }}
+      Time: ${{ needs.jod_time.outputs.time }}
+      APP_DIR: ${{ github.workspace }}/APP
+      CONFIG_CCACHE: y
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Install Dependencies
+        run: |
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ccache gettext libncurses5-dev xsltproc
+
+      - name: Setup Cache
+        uses: actions/cache@main
+        with:
+          path: |
+            ${{ env.CACHE_DIR }}
+          key: openwrt-${{ matrix.arch }}-${{ env.Time }}
+          restore-keys: |
+            openwrt-${{ matrix.arch }}-
+
+      - name: Create Directories
+        run: |
+          CACHE_DIR_SDK="$(eval echo "$CACHE_DIR/sdk")"
+          CACHE_DIR_DL="$(eval echo "$CACHE_DIR/dl")"
+          CACHE_DIR_FEEDS="$(eval echo "$CACHE_DIR/feeds")"
+          echo "CACHE_DIR_SDK: $CACHE_DIR_SDK"
+          echo "CACHE_DIR_DL: $CACHE_DIR_DL"
+          echo "CACHE_DIR_FEEDS: $CACHE_DIR_FEEDS"
+          test -d "$CACHE_DIR_SDK" || mkdir -p "$CACHE_DIR_SDK"
+          test -d "$CACHE_DIR_DL" || mkdir -p "$CACHE_DIR_DL"
+          test -d "$CACHE_DIR_FEEDS" || mkdir -p "$CACHE_DIR_FEEDS"
+          test -d "${{ env.APP_DIR }}" || mkdir -p "${{ env.APP_DIR }}"
+          echo "CACHE_DIR_SDK=$CACHE_DIR_SDK" >> $GITHUB_ENV
+          echo "CACHE_DIR_DL=$CACHE_DIR_DL" >> $GITHUB_ENV
+          echo "CACHE_DIR_FEEDS=$CACHE_DIR_FEEDS" >> $GITHUB_ENV
+          echo "SDK_HOME=$(mktemp -d)" >> $GITHUB_ENV
+
+      - name: Download and Unzip SDK
+        run: |
+          cd "$CACHE_DIR_SDK"
+          if ! ( wget -q -O - "$SDK_URL_PATH/sha256sums" | grep -- "${{ env.SDK_NAME }}" > sha256sums.small 2>/dev/null ) ; then
+            echo "::error::Can not find ${{ env.SDK_NAME }} file in sha256sums."
+            exit 1
+          fi
+          SDK_FILE="$(cat sha256sums.small | cut -d' ' -f2 | sed 's/*//g')"
+          if ! sha256sum -c ./sha256sums.small >/dev/null 2>&1 ; then
+            wget -q -O "$SDK_FILE" "$SDK_URL_PATH/$SDK_FILE"
+            if ! sha256sum -c ./sha256sums.small >/dev/null 2>&1 ; then
+              echo "::error::SDK can not be verified!"
+              exit 1
+            fi
+          fi
+          cd -
+          file "$CACHE_DIR_SDK/$SDK_FILE"
+          # tar -I zstd -xvf "$CACHE_DIR_SDK/$SDK_FILE" -C "${{ env.SDK_HOME }}" --strip=1
+          tar -I zstd -xf "$CACHE_DIR_SDK/$SDK_FILE" -C "${{ env.SDK_HOME }}" --strip=1
+          cd "${{ env.SDK_HOME }}"
+          find "${{ env.SDK_HOME }}/openwrt-toolchain-*" -type l -name "*-linux-g++" -exec ln -s {} "/bin/g++" \;
+          find "${{ env.SDK_HOME }}/openwrt-toolchain-*" -type l -name "*-linux-gcc" -exec ln -s {} "/bin/g++" \;
+          cd -
+
+      - name: Download and cpp
+        env:
+          OPENWRT_GOLANG_COMMIT: ${{ secrets.OPENWRT_GOLANG_COMMIT }}
+        run: |
+          cd "${{ env.SDK_HOME }}"
+          
+          cd -
+
+      - name: SSH connection to Actions
+        if: (inputs.ssh == true) || contains(github.event.action, 'ssh')
+        uses: mxschmitt/action-tmate@v3
+        
+      - name: Build Packages
+        run: |
+          cd "${{ env.SDK_HOME }}"
+          exit 1
+          cd -
+
+      - name: Copy Bin Files
+        run: |
+          touch release.txt
+          [ ${UPLOAD_GOFILE} = true && ${{ steps.gofile.outputs.url }} ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
+          # name=*$(echo ${{ env.PACKAGE_NAME }} | cut -d "-" -f 3-)*.ipk
+          name="*$(echo ${{ env.PACKAGE_NAME }} | sed 's/luci-app-//')*.ipk"
+          PACKAGE_DIR="${{ env.SDK_HOME }}/bin/"
+          File=$(find "${PACKAGE_DIR}" -name "${name}")
+          for dir in $(echo ${File} | sed 's| | |g')
+          do
+            # echo ${dir}
+            cp -f ${dir} "${{ env.APP_DIR }}/${{ matrix.arch }}_$(basename ${dir} | sed 's/_all//')"
+          done
+          find "${{ env.APP_DIR }}" -name "*" -exec ls -lh {} \;
+
+      - name: Upload to bin directory
+        uses: actions/upload-artifact@main
+        if: ${{env.UPLOAD_BIN_DIR}} == 'true'
+        with:
+          name: ${{ matrix.arch }}_package_${{ env.Time }}
+          path: ${{ env.SDK_HOME }}/bin 
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.Time }}
+          body_path: release.txt
+          files: ${{ env.APP_DIR }}/*
+
+      - name: SSH connection to Actions
+        if: (inputs.ssh == true) || contains(github.event.action, 'ssh')
+        uses: mxschmitt/action-tmate@v3  
+
+  jod_notify:
+    name: Notify Release Publish
+    runs-on: ubuntu-latest
+    env:
+      TRIGGER_URL: ${{ secrets.TRIGGER_URL }}
+      TRIGGER_TOKEN: ${{ secrets.TRIGGER_TOKEN }}
+    needs: jod_release
+    steps:
+      - name: Notify Jenkins
+        run: |
+          if [ -z "$TRIGGER_URL" ] ; then
+            echo "::warning::No trigger url found, skip..."
+            exit 0
+          fi
+          curl -X POST \
+              -H "Content-Type: application/json; charset=utf-8" \
+              -H "Authorization: Bearer $TRIGGER_TOKEN" \
+              -d "{\"event\":\"release\",\"repository\":\"${{ github.repository }}\",\"ref\":\"${{ github.ref }}\"}" \
+              "$TRIGGER_URL" || true
