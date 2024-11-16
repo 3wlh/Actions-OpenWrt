@@ -81,7 +81,7 @@ jobs:
           echo "CACHE_DIR_DL: $CACHE_DIR_DL"
           echo "CACHE_DIR_FEEDS: $CACHE_DIR_FEEDS"
           test -d "$CACHE_DIR_SDK" || mkdir -p "$CACHE_DIR_SDK"
-          test -d "$CACHE_DIR_DL" || mkdir -p "$CACHE_DIR_DL"
+          openwrt_
           test -d "$CACHE_DIR_FEEDS" || mkdir -p "$CACHE_DIR_FEEDS"
           test -d "${{ env.APP_DIR }}" || mkdir -p "${{ env.APP_DIR }}"
           echo "CACHE_DIR_SDK=$CACHE_DIR_SDK" >> $GITHUB_ENV
@@ -109,8 +109,12 @@ jobs:
           # tar -I zstd -xvf "$CACHE_DIR_SDK/$SDK_FILE" -C "${{ env.SDK_HOME }}" --strip=1
           tar -I zstd -xf "$CACHE_DIR_SDK/$SDK_FILE" -C "${{ env.SDK_HOME }}" --strip=1
           cd "${{ env.SDK_HOME }}"
-          find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++" -exec ln -s {} "/bin/g++" \;
-          find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec ln -s {} "/bin/g++" \;
+          find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++" -exec echo {} \;
+          find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++" -exec ln -s {} "/bin/openwrt_g++" \;
+          test -L "/bin/openwrt_g++" || echo "NO: /bin/openwrt_g++"
+          find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec echo {} \;
+          find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec ln -s {} "/bin/openwrt_gcc" \;
+          test -L "/bin/openwrt_gcc" || echo "NO: /bin/openwrt_gcc"
           cd -
 
       - name: Download and cpp
