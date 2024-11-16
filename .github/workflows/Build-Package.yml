@@ -109,10 +109,10 @@ jobs:
           tar -I zstd -xf "$CACHE_DIR_SDK/$SDK_FILE" -C "${{ env.SDK_HOME }}" --strip=1
           cd "${{ env.SDK_HOME }}"
           find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++" -exec echo {} \;
-          find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++" -exec ln -s {} "/bin/openwrt_g++" \;
+          find "${{ env.SDK_HOME }}" -type l -name "*-linux-g++" -exec sudo ln -s {} "/bin/openwrt_g++" \;
           test -L "/bin/openwrt_g++" || echo "NO: /bin/openwrt_g++"
           find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec echo {} \;
-          find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec ln -s {} "/bin/openwrt_gcc" \;
+          find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec sudo ln -s {} "/bin/openwrt_gcc" \;
           test -L "/bin/openwrt_gcc" || echo "NO: /bin/openwrt_gcc"
           cd -
 
