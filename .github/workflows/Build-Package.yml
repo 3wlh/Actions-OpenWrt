@@ -119,7 +119,6 @@ jobs:
           OPENWRT_GOLANG_COMMIT: ${{ secrets.OPENWRT_GOLANG_COMMIT }}
         run: |
           cd "${{ env.SDK_HOME }}"
-          cat "/etc/profile"
           ${{ env.CXX }} -v
           ${{ env.CC }} -v
           cd -
