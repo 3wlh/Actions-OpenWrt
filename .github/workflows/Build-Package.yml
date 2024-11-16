@@ -116,8 +116,8 @@ jobs:
           # find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc" -exec sudo ln -s {} "/bin/openwrt_gcc" \;
           GCC="$(find "${{ env.SDK_HOME }}" -type l -name "*-linux-gcc")"
           sudo ln -s "${GCC}" "${GCC%/*}/openwrt-gcc"
-          sed -i '$a\PATH=$PATH:'"${GPP%/*}" "/etc/profile"
-          source /etc/profile
+          sudo sed -i '$a\PATH=$PATH:'"${GPP%/*}" "/etc/profile"
+          sudo source /etc/profile
           cd -
 
       - name: Download and cpp
