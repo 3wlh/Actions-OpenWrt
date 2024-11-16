@@ -127,6 +127,7 @@ jobs:
           OPENWRT_GOLANG_COMMIT: ${{ secrets.OPENWRT_GOLANG_COMMIT }}
         run: |
           cd "${{ env.SDK_HOME }}"
+          cat "/etc/profile"
           openwrt-g++ -v
           openwrt-gcc -v
           cd -
